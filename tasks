@@ -1,0 +1,1 @@
+default: sudo /home/linuxbrew/.linuxbrew/bin/minia ${MINIA_INPUT} 31 3 6000000 minia
