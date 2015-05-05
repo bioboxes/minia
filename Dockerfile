@@ -1,8 +1,8 @@
 FROM sjackman/linuxbrew
 MAINTAINER Peter Belmann, pbelmann@cebitec.uni-bielefeld.de
 
-RUN sudo apt-get install wget
-
+RUN sudo apt-get install -y  wget ca-certificates
+ 
 # install minia
 RUN brew tap homebrew/science
 RUN brew install minia
@@ -11,7 +11,7 @@ RUN brew install minia
 ENV BASE_URL  https://s3-us-west-1.amazonaws.com/bioboxes-tools/validate-biobox-file
 ENV VERSION   0.x.y
 ENV VALIDATOR /bbx/validator/
-RUN sudo mkdir -p  ${VALIDATOR} && sudo chmod -R a+wx  /bbx
+RUN sudo mkdir -p  ${VALIDATOR}
 
 # install yaml2json and jq tools
 ENV CONVERT https://github.com/bronze1man/yaml2json/raw/master/builds/linux_386/yaml2json
@@ -23,14 +23,18 @@ RUN sudo wget \
       --quiet \
       --output-document -\
       ${BASE_URL}/${VERSION}/validate-biobox-file.tar.xz \
-    | sudo tar xJf - \
+     | sudo tar xJf - \
       --directory ${VALIDATOR} \
       --strip-components=1
 ENV PATH ${PATH}:${VALIDATOR}
 
 # add schema, tasks, run scripts
 ADD run.sh /usr/local/bin/run
-ADD schema.yaml ${VALIDATOR}
-ADD tasks /
+ADD Taskfile /
+
+# download the assembler schema
+RUN sudo wget \
+    --output-document ${VALIDATOR}schema.yaml \
+    https://raw.githubusercontent.com/bioboxes/rfc/master/container/short-read-assembler/input_schema.yaml
 
 ENTRYPOINT ["sudo", "-E", "/bin/bash", "/usr/local/bin/run"]
