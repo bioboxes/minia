@@ -5,6 +5,7 @@ set -o nounset
 
 INPUT=/bbx/input/biobox.yaml
 OUTPUT=/bbx/output
+METADATA=/bbx/metadata
 TASK=$1
 
 # Ensure the biobox.yml file is valid
@@ -32,6 +33,12 @@ do
 done
 
 cd $TMP_DIR
+
+# if /bbx/metadata mounted create log.txt
+if [ -d "$METADATA" ]; then
+  CMD="($CMD) >& $METADATA/log.txt"
+fi
+
 eval ${CMD}
 
 mkdir -p $OUTPUT
